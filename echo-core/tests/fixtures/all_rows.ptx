@@ -1,0 +1,94 @@
+// Hand-written fixture: every REWRITE row of the normalizer table, in an .entry and in a .func.
+// Every line that the normalizer must change carries the marker HAZARD.
+.version 8.7
+.target sm_70
+.address_size 64
+
+	// .globl	k_rows
+.global .align 4 .f32 g_acc;
+
+.func  (.param .b32 func_retval0) helper(
+	.param .b64 helper_param_0,
+	.param .b32 helper_param_1
+)
+{
+	.reg .f32 	%f<4>;
+	.reg .b64 	%rd<3>;
+
+	ld.param.u64 	%rd1, [helper_param_0];
+	ld.param.f32 	%f1, [helper_param_1];
+	atom.global.add.f32 	%f2, [%rd1+-8], %f1; // HAZARD
+	mul.ftz.f32 	%f3, %f1, %f1; // HAZARD
+	st.param.f32 	[func_retval0], %f3;
+	ret;
+}
+
+.visible .entry k_rows(
+	.param .u64 k_rows_param_0
+)
+{
+	.reg .pred 	%p<3>;
+	.reg .f32 	%f<40>;
+	.reg .f64 	%fd<4>;
+	.reg .b32 	%r<4>;
+	.reg .b64 	%rd<8>;
+
+	ld.param.u64 	%rd1, [k_rows_param_0];
+	cvta.to.global.u64 	%rd2, %rd1;
+	mov.u32 	%r1, %tid.x;
+	mov.u32 	%r2, %laneid;
+	setp.eq.s32 	%p1, %r1, 0;
+	setp.ne.s32 	%p2, %r2, 0;
+	ld.global.f32 	%f1, [%rd2];
+	ld.global.f32 	%f2, [%rd2+4];
+	mul.ftz.f32 	%f3, %f1, %f2; // HAZARD
+	add.f32 	%f4, %f3, %f1; // HAZARD
+	sub.ftz.f32 	%f5, %f4, %f2; // HAZARD
+	ld.global.f64 	%fd1, [%rd2+8];
+	add.f64 	%fd2, %fd1, %fd1; // HAZARD
+	div.approx.ftz.f32 	%f6, %f1, %f2; // HAZARD
+	div.full.ftz.f32 	%f7, %f1, %f2; // HAZARD
+	rcp.approx.ftz.f32 	%f8, %f1; // HAZARD
+	@%p1 sqrt.approx.ftz.f32 	%f9, %f1; // HAZARD
+	rsqrt.approx.ftz.f32 	%f10, %f1; // HAZARD
+	@!%p2 rsqrt.approx.f32 	%f11, %f1; // HAZARD
+	ex2.approx.ftz.f32 	%f12, %f1; // HAZARD
+	lg2.approx.ftz.f32 	%f13, %f1; // HAZARD
+	sin.approx.ftz.f32 	%f14, %f1; // HAZARD
+	cos.approx.ftz.f32 	%f15, %f1; // HAZARD
+	@%p1 cos.approx.f32 	%f16, 0f3F800000; // HAZARD
+	@!%p2 atom.global.add.f32 	%f17, [%rd2+12], %f1; // HAZARD
+	atom.global.add.f32 	%f18, [%rd2], 0f3F800000; // HAZARD
+	mov.u64 	%rd3, %clock64; // HAZARD
+	mov.u32 	%r3, %clock; // HAZARD
+	{  mov.f32 %f19, %f1; ex2.approx.f32 %f20, %f19;} // HAZARD
+	ld.global.v4.f32 	{%f21, %f22, %f23, %f24}, [%rd2+16];
+	fma.rn.ftz.f32 	%f25, %f21, %f22, %f23;
+	add.rn.ftz.f32 	%f26, %f25, %f24;
+	atom.global.add.u32 	%r1, [%rd2+32], 1;
+	atom.global.max.u32 	%r1, [%rd2+36], %r2;
+	mov.u64 	%rd4, g_acc;
+	atom.global.add.f32 	%f27, [g_acc+4], %f1; // HAZARD
+	{ // callseq 0, 0
+	.param .b64 param0;
+	st.param.b64 	[param0], %rd2;
+	.param .b32 param1;
+	st.param.f32 	[param1], %f1;
+	.param .b32 retval0;
+	call.uni (retval0), helper, (param0, param1);
+	ld.param.f32 	%f28, [retval0];
+	} // callseq 0
+	st.global.f32 	[%rd2], %f28;
+	st.global.u64 	[%rd2+8], %rd3;
+	ret;
+}
+
+.visible .entry k_plain(
+	.param .u64 k_plain_param_0
+)
+{
+	.reg .b64 	%rd<2>;
+
+	ld.param.u64 	%rd1, [k_plain_param_0];
+	ret;
+}

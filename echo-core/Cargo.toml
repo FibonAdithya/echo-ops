@@ -1,0 +1,12 @@
+[package]
+name = "echo-core"
+version = "0.1.0"
+edition = "2021"
+description = "ECHO: PTX normalizer and CPU reference implementations (no CUDA dependency)"
+
+[workspace]
+
+[dependencies]
+
+[dev-dependencies]
+rand = { version = "0.8.5", default-features = false, features = ["std_rng"] }

@@ -1,0 +1,20 @@
+// Hand-written fixture: atomicAdd(float) whose return value is stored afterwards.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .entry k_used(
+	.param .u64 k_used_param_0,
+	.param .f32 k_used_param_1
+)
+{
+	.reg .f32 	%f<4>;
+	.reg .b64 	%rd<5>;
+
+	ld.param.u64 	%rd1, [k_used_param_0];
+	ld.param.f32 	%f2, [k_used_param_1];
+	cvta.to.global.u64 	%rd4, %rd1;
+	atom.global.add.f32 	%f3, [%rd4], %f2;
+	st.global.f32 	[%rd4+4], %f3;
+	ret;
+}

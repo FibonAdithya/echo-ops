@@ -1,0 +1,41 @@
+// Hand-written fixture: every REJECT row of the normalizer table (normalize() must fail on it).
+// Every line that hazards() must report carries the marker HAZARD.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .entry k_bad(
+	.param .u64 k_bad_param_0
+)
+{
+	.reg .pred 	%p<3>;
+	.reg .b16 	%rs<3>;
+	.reg .f32 	%f<20>;
+	.reg .f64 	%fd<4>;
+	.reg .b32 	%r<10>;
+	.reg .b64 	%rd<8>;
+
+	ld.param.u64 	%rd1, [k_bad_param_0];
+	cvta.to.global.u64 	%rd2, %rd1;
+	mov.u32 	%r1, %tid.x;
+	atom.global.add.f32 	%f3, [%rd2], %f1; // HAZARD
+	st.global.f32 	[%rd2+4], %f3;
+	mov.u32 	%r2, %smid; // HAZARD
+	mov.u64 	%rd3, %globaltimer; // HAZARD
+	mov.u32 	%r3, %warpid; // HAZARD
+	tanh.approx.f32 	%f4, %f1; // HAZARD
+	ex2.approx.f16 	%rs1, %rs2; // HAZARD
+	rcp.approx.ftz.f64 	%fd1, %fd2; // HAZARD
+	activemask.b32 	%r4; // HAZARD
+	atom.shared.add.f32 	%f5, [%rd2], %f1; // HAZARD
+	atom.add.f32 	%f6, [%rd2], %f1; // HAZARD
+	atom.global.add.f64 	%fd3, [%rd2], %fd2; // HAZARD
+	red.global.add.f32 	[%rd2], %f1; // HAZARD
+	atom.global.exch.b32 	%r5, [%rd2], %r1; // HAZARD
+	atom.global.cas.b64 	%rd5, [%rd2], %rd1, %rd2; // HAZARD
+	prmt.b32 	%r6, %r1, %r2, 0x3210; // HAZARD
+	add.u64 	%rd4, %clock64, 1; // HAZARD
+	mov.u32 	%r7, %undeclared_thing; // HAZARD
+	{ mov.u32 %r8, %r1; vote.sync.ballot.b32 %r9, %p1, 0xffffffff; } // HAZARD
+	ret;
+}

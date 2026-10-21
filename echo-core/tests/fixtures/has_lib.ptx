@@ -1,0 +1,31 @@
+// Hand-written fixture: a module that already contains the ECHO library definition of __echo_ex2f.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .func  (.param .b32 func_retval0) __echo_ex2f(
+	.param .b32 __echo_ex2f_param_0
+)
+{
+	.reg .f32 	%f<3>;
+
+	ld.param.f32 	%f1, [__echo_ex2f_param_0];
+	add.rn.f32 	%f2, %f1, %f1;
+	st.param.f32 	[func_retval0], %f2;
+	ret;
+}
+
+.visible .entry k_lib(
+	.param .u64 k_lib_param_0
+)
+{
+	.reg .f32 	%f<3>;
+	.reg .b64 	%rd<3>;
+
+	ld.param.u64 	%rd1, [k_lib_param_0];
+	cvta.to.global.u64 	%rd2, %rd1;
+	ld.global.f32 	%f1, [%rd2];
+	ex2.approx.ftz.f32 	%f2, %f1;
+	st.global.f32 	[%rd2], %f2;
+	ret;
+}

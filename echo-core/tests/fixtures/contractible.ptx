@@ -1,0 +1,31 @@
+// Hand-written fixture: contractible float mul/add/sub, plus instructions that must stay as they are.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .entry k_mul(
+	.param .u64 k_mul_param_0
+)
+{
+	.reg .f32 	%f<8>;
+	.reg .f64 	%fd<4>;
+	.reg .b32 	%r<4>;
+	.reg .b64 	%rd<3>;
+
+	ld.param.u64 	%rd1, [k_mul_param_0];
+	cvta.to.global.u64 	%rd2, %rd1;
+	ld.global.f32 	%f1, [%rd2];
+	ld.global.f32 	%f2, [%rd2+4];
+	mul.ftz.f32 	%f3, %f1, %f2;
+	add.ftz.f32 	%f4, %f3, %f1;
+	sub.f32 	%f5, %f4, %f2;
+	fma.rn.ftz.f32 	%f6, %f5, %f1, %f2;
+	add.rn.f32 	%f7, %f6, %f1;
+	ld.global.f64 	%fd1, [%rd2+8];
+	mul.f64 	%fd2, %fd1, %fd1;
+	mul.lo.s32 	%r1, %r2, %r3;
+	add.s32 	%r1, %r1, 1;
+	st.global.f32 	[%rd2], %f7;
+	st.global.f64 	[%rd2+8], %fd2;
+	ret;
+}

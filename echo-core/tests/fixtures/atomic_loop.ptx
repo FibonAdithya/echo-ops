@@ -1,0 +1,27 @@
+// Hand-written fixture: the atom's result %f9 is read at the loop head, i.e. textually BEFORE the atom.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .entry k_loop(
+	.param .u64 k_loop_param_0,
+	.param .f32 k_loop_param_1
+)
+{
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<10>;
+	.reg .b32 	%r<3>;
+	.reg .b64 	%rd<5>;
+
+	ld.param.u64 	%rd1, [k_loop_param_0];
+	ld.param.f32 	%f2, [k_loop_param_1];
+	cvta.to.global.u64 	%rd4, %rd1;
+	mov.u32 	%r1, 0;
+$L__BB0_1:
+	add.rn.ftz.f32 	%f2, %f2, %f9;
+	atom.global.add.f32 	%f9, [%rd4], %f2;
+	add.s32 	%r1, %r1, 1;
+	setp.lt.u32 	%p1, %r1, 4;
+	@%p1 bra 	$L__BB0_1;
+	ret;
+}

@@ -1,0 +1,19 @@
+// Hand-written fixture: atomicAdd(float) on an address with an immediate offset.
+.version 8.7
+.target sm_70
+.address_size 64
+
+.visible .entry k_off(
+	.param .u64 k_off_param_0,
+	.param .f32 k_off_param_1
+)
+{
+	.reg .f32 	%f<4>;
+	.reg .b64 	%rd<6>;
+
+	ld.param.u64 	%rd1, [k_off_param_0];
+	ld.param.f32 	%f2, [k_off_param_1];
+	cvta.to.global.u64 	%rd5, %rd1;
+	atom.global.add.f32 	%f3, [%rd5+4], %f2;
+	ret;
+}
